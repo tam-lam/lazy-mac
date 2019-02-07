@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 import time, os , sys
 import threading
-
+import argparse
 response = None
+
+parser = argparse.ArgumentParser(description= "Timer to make Mac falls asleep")
+parser.add_argument('-m', '--minutes',metavar = '', type=int, help='Minutes to coundown before Mac falls asleep')
+
+args = parser.parse_args()
 
 def timer(seconds):
     while True:
@@ -50,20 +55,29 @@ def waitToQuit(seconds):
 def minuteToSeconds(seconds):
     return abs((int(seconds) * 60))
 
-if __name__ == "__main__":
-    timming = False
-    seconds = 0
-    while timming == False:
-        uin = input("Timer in minutes: ")
-        try:
-            seconds = minuteToSeconds(uin)
-            startTiming(seconds)
-            timming = True
-        except: 
-            if uin == "q":
-                sys.exit()
-            else:
-                print("Enter number of minutes or \"q\" to quit")
-            continue
+def argMain(seconds):
+    startTiming(seconds)
     waitToQuit(seconds+2)
+    pass
+
+if __name__ == "__main__":
+    if args.minutes == None:
+        timming = False
+        seconds = 0
+        while timming == False:
+            uin = input("Timer in minutes: ")
+            try:
+                seconds = minuteToSeconds(uin)
+                startTiming(seconds)
+                timming = True
+            except: 
+                if uin == "q":
+                    sys.exit()
+                else:
+                    print("Enter number of minutes or \"q\" to quit")
+                continue
+        waitToQuit(seconds+2)
+    else:
+        seconds = minuteToSeconds(args.minutes)
+        argMain(seconds)
     pass
