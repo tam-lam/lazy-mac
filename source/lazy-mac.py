@@ -106,7 +106,8 @@ def lockScreen():
     executeApplescript(sleepScript)
 
 def shutdown():
-    quitall()
+    executeApplescript(closeSafariTabsScript)
+    executeApplescript(closeChromeTabsScript)
     executeApplescript(shutdownScript)
 
 def quitall():
