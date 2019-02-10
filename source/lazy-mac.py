@@ -135,7 +135,7 @@ def waitToQuit(seconds):
     t.start()
 
 def minuteToSeconds(seconds):
-    return abs((int(seconds) * 1))
+    return abs((int(seconds) * 60))
 
 def argsSwitch(minutes,command):
     seconds = minuteToSeconds(minutes)
