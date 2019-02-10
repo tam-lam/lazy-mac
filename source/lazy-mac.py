@@ -41,8 +41,11 @@ tell application "System Events"
     set selectedProcesses to (name of every process where background only is false)
 end tell
 repeat with processName in selectedProcesses
-    do shell script "Killall " & quoted form of processName
+    if processName does not contains "Terminal"
+        do shell script "Killall " & quoted form of processName
+    end if
 end repeat
+tell application "Terminal" to quit
 '''
 shutdownScript ='''
 tell application "System Events"
@@ -90,6 +93,8 @@ def performCommand(command):
             print("\r", end= "")
             print("Enter 'q' to quit")
         if command == quitAllCommand:
+            print("\r", end= "")
+            print("Enter 'q' to quit")
             quitall()
         if command == shutdownCommand:
             shutdown()
@@ -130,7 +135,7 @@ def waitToQuit(seconds):
     t.start()
 
 def minuteToSeconds(seconds):
-    return abs((int(seconds) * 60))
+    return abs((int(seconds) * 1))
 
 def argsSwitch(minutes,command):
     seconds = minuteToSeconds(minutes)
