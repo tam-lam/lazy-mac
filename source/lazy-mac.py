@@ -51,14 +51,10 @@ commands.add_argument('-sleep','--sleep', metavar = '', type=int, help='Sleep in
 commands.add_argument('-quitall','--quitall', metavar = '', type=int, help='Quit all applications in shutdown in number of minutes')
 commands.add_argument('-shutdown','--shutdown', metavar = '', type=int, help='Shutdown in number of minutes')
 args = parser.parse_args()
-thread1 = threading.Thread()
 
 def timer(seconds,command):
     while True:
-        try: 
-            timer = abs(seconds)
-        except KeyboardInterrupt:
-            break
+        timer = abs(seconds)
         while timer > -1 :     
             m, s = divmod(timer,60)
             h, m = divmod(m,60)
@@ -95,8 +91,7 @@ def getBashAppName():
 
 def quit():
     while True:
-        response = input()
-        if response == 'q':
+        if input() == 'q':
             print("\r", end="")
             sys.exit()   
 

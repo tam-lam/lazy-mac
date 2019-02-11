@@ -14,7 +14,7 @@ After installation, type `lazy-mac` commands in terminal as follow:
 ## Installation:
 Copy __lazy-mac__ executable file to `usr/local/bin` , remove the file to uninstall
 ## Warning:
-* `-quitall` and `-shutdown` closes all applications. __Unsaved data maybe lost__. Hence use this script with caution and only when necessary
+* `-quitall` and `-shutdown` close all applications. __Unsaved data maybe lost__. Hence use this script with caution and only when necessary
 * This is a CLI script which requires Terminal to be running during the countdown. Turning off Terminal effectively terminates the script
 ## Tested:
 * MacOS Mojave
