@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
-import time, os , sys, subprocess
-import threading
-import argparse
+import time, os , sys, subprocess, threading, argparse
 from subprocess import Popen, PIPE
-response = None
 # Commands
 sleepCommand = "sleep"
 quitAllCommand = "quitall"
@@ -62,9 +59,6 @@ def timer(seconds,command):
             timer = abs(seconds)
         except KeyboardInterrupt:
             break
-        except: 
-            print("Not a number!")
-            break
         while timer > -1 :     
             m, s = divmod(timer,60)
             h, m = divmod(m,60)
@@ -72,21 +66,26 @@ def timer(seconds,command):
             print(time_left + "\r" , end="")
             time.sleep(1)
             timer -= 1
-
         performCommand(command)
         break
 
 def performCommand(command):
         if command == sleepCommand:
-            lockScreen()
-            print("\r", end= "")
-            print("Enter 'q' to quit")
+            executeApplescript(sleepScript)
+            finishPrompt()
         if command == quitAllCommand:
-            print("\r", end= "")
-            print("Enter 'q' to quit")
-            quitall()
+            executeApplescript(closeSafariTabsScript)
+            executeApplescript(closeChromeTabsScript)
+            executeApplescript(shutdownScript)
+            finishPrompt()
         if command == shutdownCommand:
-            shutdown()
+            executeApplescript(closeSafariTabsScript)
+            executeApplescript(closeChromeTabsScript)
+            executeApplescript(shutdownScript)
+
+def finishPrompt():
+    print("\r", end= "")
+    print("Enter 'q' to quit")
 
 def getBashAppName():
     proc = Popen(['osascript', '-'], stdin=PIPE, stdout=PIPE, stderr=PIPE, universal_newlines=True)
@@ -96,24 +95,10 @@ def getBashAppName():
 
 def quit():
     while True:
-        global response
         response = input()
         if response == 'q':
             print("\r", end="")
             sys.exit()   
-    
-def lockScreen():
-    executeApplescript(sleepScript)
-
-def shutdown():
-    executeApplescript(closeSafariTabsScript)
-    executeApplescript(closeChromeTabsScript)
-    executeApplescript(shutdownScript)
-
-def quitall():
-    executeApplescript(closeSafariTabsScript)
-    executeApplescript(closeChromeTabsScript)
-    executeApplescript(quitAllScript)
 
 def startTiming(seconds,commands):
         thread1 = threading.Thread(target=timer,args=[seconds, commands])
@@ -159,17 +144,14 @@ if __name__ == "__main__":
     end repeat
     do shell script "Killall " & quoted form of "%s"
     ''' % (bashAppName,bashAppName)
-
     sleepScript = '''
     tell application "Finder" to sleep
     do shell script "Killall " & quoted form of "%s"
     ''' % (bashAppName)
-
+    
     if args.sleep:
         argsSwitch(args.sleep , sleepCommand)
     if args.shutdown:
         argsSwitch(args.shutdown, shutdownCommand)
     if args.quitall:
         argsSwitch(args.quitall, quitAllCommand)
-    else: 
-        print("Unknown argument\nEnter \"lazy-mac -h\" to view list of arguments ")
