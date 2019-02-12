@@ -19,20 +19,6 @@ tell application "Safari"
 end tell
 tell application "Safari" to quit
 '''
-closeChromeTabsScript = '''
-if exists application "Google Chrome" then
-    tell application "Google Chrome"
-        repeat with i from (count of windows) to 1 by -1
-            repeat with j from (count of tabs of window i) to 1 by -1
-                set thistab to tab j of window i
-                set foo to name of thistab
-                if foo is not equal to "bar" then close thistab
-            end repeat
-        end repeat
-    end tell
-    tell application "Google Chrome" to quit
-end if
-'''
 getBashAppNameScript = '''
 tell application "System Events"
     set terminalApp to name of first application process whose frontmost is true
@@ -53,6 +39,7 @@ commands.add_argument('-shutdown','--shutdown', metavar = '', type=int, help='Sh
 args = parser.parse_args()
 
 def timer(seconds,command):
+    bashAppName = getBashAppName()
     while True:
         timer = abs(seconds)
         while timer > -1 :     
@@ -62,21 +49,34 @@ def timer(seconds,command):
             print(time_left + "\r" , end="")
             time.sleep(1)
             timer -= 1
-        performCommand(command)
+        performCommand(command,bashAppName)
         break
 
-def performCommand(command):
+def performCommand(command,bashAppName):
         if command == sleepCommand:
+            sleepScript = '''
+            tell application "Finder" to sleep
+            do shell script "Killall " & quoted form of "%s"
+            ''' % (bashAppName)
             executeApplescript(sleepScript)
             finishPrompt()
         if command == quitAllCommand:
+            quitAllScript='''
+            tell application "System Events"
+                set selectedProcesses to (name of every process where background only is false)
+            end tell
+            repeat with processName in selectedProcesses
+                if processName does not contains "%s"
+                    do shell script "Killall " & quoted form of processName
+                end if
+            end repeat
+            do shell script "Killall " & quoted form of "%s"
+            ''' % (bashAppName,bashAppName)
             executeApplescript(closeSafariTabsScript)
-            executeApplescript(closeChromeTabsScript)
-            executeApplescript(shutdownScript)
+            executeApplescript(quitAllScript)
             finishPrompt()
         if command == shutdownCommand:
             executeApplescript(closeSafariTabsScript)
-            executeApplescript(closeChromeTabsScript)
             executeApplescript(shutdownScript)
 
 def finishPrompt():
@@ -126,24 +126,7 @@ def executeApplescript(applescript):
     proc.wait()
     return proc
 
-if __name__ == "__main__":
-    bashAppName = getBashAppName()
-    quitAllScript='''
-    tell application "System Events"
-        set selectedProcesses to (name of every process where background only is false)
-    end tell
-    repeat with processName in selectedProcesses
-        if processName does not contains "%s"
-            do shell script "Killall " & quoted form of processName
-        end if
-    end repeat
-    do shell script "Killall " & quoted form of "%s"
-    ''' % (bashAppName,bashAppName)
-    sleepScript = '''
-    tell application "Finder" to sleep
-    do shell script "Killall " & quoted form of "%s"
-    ''' % (bashAppName)
-    
+if __name__ == "__main__":    
     if args.sleep:
         argsSwitch(args.sleep , sleepCommand)
     if args.shutdown:
